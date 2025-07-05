@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+      - name: backend-container
+        image: seu-usuario-dockerhub/herehave-backend:latest # Substitua pelo seu usuário
+        ports:
+        - containerPort: 3010 # Porta do seu backend
+        env:
+        - name: DB_STRING
+          value: "mongodb+srv://ribshow10:crfHkQrM5anuAftn@cluster0.ovaay.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0" # IMPORTANTE: Use o banco na nuvem
+        - name: SECRET_KEY
+          value: "H102391JD19JD-9S-0DKJS-A0J-110HD0ADKJ10D"
+        - name: CLOUDINARY_CLOUD_NAME
+          value: "dguy9ewdr"
+        - name: CLOUDINARY_API_KEY
+          value: "757752711176362"
+        - name: CLOUDINARY_API_SECRET
+          value: "11Elh-9_7PwZOmkp3JyhRKPf38Y"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+spec:
+  selector:
+    app: backend
+  ports:
+  - port: 3010 # Porta do serviço
+    targetPort: 3010 # Porta do contêiner
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: frontend-container
+        image: seu-usuario-dockerhub/herehave-frontend:latest # Substitua pelo seu usuário
+        ports:
+        - containerPort: 3000 # Porta padrão do Next.js
+        env:
+        - name: NEXT_PUBLIC_API_URL
+          # IMPORTANTE: Dentro do cluster, o frontend acessa o backend pelo nome do serviço
+          value: "http://backend-service:3010"
+        - name: CLOUDINARY_CLOUD_NAME
+          value: "dguy9ewdr"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-service
+spec:
+  type: NodePort
+  selector:
+    app: frontend
+  ports:
+  - port: 80 # Porta do serviço (padrão web)
+    targetPort: 3000 # Porta do contêiner Next.js
+    nodePort: 30001 # Porta para acessar externamente
