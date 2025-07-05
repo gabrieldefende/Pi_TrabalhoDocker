@@ -22,6 +22,6 @@ jobs:
       - name: Construir e enviar a imagem Docker
         uses: docker/build-and-push-action@v5
         with:
-          context: ./herehave_frontend
+          context: ./frontend
           push: true
           tags: gabrieldefende/herehave-frontend:latest # <-- NOME AJUSTADO
